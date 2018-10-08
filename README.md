@@ -10,4 +10,4 @@ In particular, the script reproduces
 
  - Figure 2 
 
- To exactly reproduce Figure 2, change the ``SIGNAL`` parameter in ```run_experiments.sh``` and ``number_simulations`` in ```configs/config_desktop.yml```. We recommend running such larger scale experiments in a distributed way. 
+ To exactly reproduce Figure 2, change the ``SIGNAL`` parameter in ```run_experiments.sh``` and ``number_simulations`` in ```configs/config_desktop.yml```. We recommend running larger scale experiments in a distributed way. 
