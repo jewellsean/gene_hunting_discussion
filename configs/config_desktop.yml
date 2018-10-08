@@ -1,0 +1,8 @@
+n_obs : 1000 # number of observations (small size for local computations, increase to 1000 to reproduce Fig 1, 2)
+p : 1000 # number of covariates (small size for local computations, increase to 1000 to reproduce Fig 1, 2)
+number_simulations : 10 # number of simulations (small size for local computations, increase to 100 to reproduce Fig 2)
+active_support_size : 60 # (small size for local computations, increase to 60 to reproduce Fig 2)
+write_directory : 'local_experiments/'
+load_experiments : 'local_experiments/'
+figure_directory : 'art_small_simulation/'
+fdr : 0.1
