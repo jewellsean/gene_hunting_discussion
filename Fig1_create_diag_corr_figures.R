@@ -4,7 +4,7 @@
 # Motivated from the tutorial GWAS tutorial from the author's webpage
 # https://web.stanford.edu/group/candes/knockoffs/tutorials/gwas_tutorial.html#knockoff_diagnostics
 
-required_packages <- c("SNPknock", "knockoff", "tidyverse", "yaml")
+required_packages <- c("SNPknock", "knockoff", "tidyverse", "yaml", "gridExtra", "grid")
 new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
 if(length(new_packages)) install.packages(new_packages)
 
@@ -15,6 +15,8 @@ library(SNPknock)
 library(knockoff)
 library(tidyverse)
 library(yaml)
+library(gridExtra)
+library(grid)
 source("utils.R")
 
 ## simualtion parameters
@@ -40,17 +42,48 @@ df_gaussian$knockoff_type <- "Gaussian"
 
 df <- rbind(df_markov, df_gaussian)
 df$knockoff_type <- factor(df$knockoff_type, levels = c("Markov", "Gaussian"), 
-                           labels = c("Knockoffs Generated Under: Markov Chain",
-                                      "Knockoffs Generated Under: Gaussian Approximation"))
+                           labels = c("Knockoffs generated under Markov chain",
+                                      "Knockoffs generated under Gaussian approximation"))
 
 # compare the pairwise correlations under the correct and misspecified models
-p <- df %>% ggplot(aes(x = covariate_corr, y = knockoff_corr)) + 
+p1 <- df %>% filter(knockoff_type == "Knockoffs generated under Markov chain") %>% 
+  ggplot(aes(x = covariate_corr, y = knockoff_corr)) + 
   geom_point(alpha = 0.25) + 
   facet_wrap(~knockoff_type) + 
-  xlab('Pairwise Covariate Correlation') + 
-  ylab('Pairwise Knockoff Correlation') + 
+  xlim(c(-0.1, 0.6)) +
+  ylim(c(-0.1, 0.6)) +
+  xlab('Pairwise covariate correlation') + 
+  ylab('Pairwise knockoff correlation') + 
   geom_abline(slope = 1, intercept = 0, col = "red") +
   theme_bw()
 
+p2 <- df %>% filter(knockoff_type == "Knockoffs generated under Gaussian approximation") %>% 
+  ggplot(aes(x = covariate_corr, y = knockoff_corr)) + 
+  geom_point(alpha = 0.25) + 
+  xlim(c(-0.1, 0.6)) +
+  ylim(c(-0.1, 0.6)) +
+  facet_wrap(~knockoff_type) + 
+  xlab('Pairwise covariate correlation') + 
+  ylab('Pairwise knockoff correlation') + 
+  geom_abline(slope = 1, intercept = 0, col = "red") +
+  theme_bw()
+
+## https://stackoverflow.com/questions/17576381/corner-labels-in-ggplot2
+p1 <- arrangeGrob(p1, top = textGrob("(a)", x = unit(0, "npc")
+                                               , y   = unit(0.5, "npc"), just=c("left","top"),
+                                               gp=gpar(col="black", fontsize=12)))
+
+
+p2 <- arrangeGrob(p2, top = textGrob("(b)", x = unit(0, "npc")
+                                     , y   = unit(0.5, "npc"), just=c("left","top"),
+                                     gp=gpar(col="black", fontsize=12)))
+
+
 dir.create(configs$figure_directory, showWarnings = FALSE)
-ggsave(paste0(configs$figure_directory, "diagonistics.pdf"), p, height = 4, width = 8.5)
+
+pdf(paste0(configs$figure_directory, "diagonistics.pdf"),height = 4, width = 8.5)
+grid.arrange(p1, p2, ncol = 2)
+dev.off()
+
+
+
